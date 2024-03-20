@@ -16,8 +16,9 @@ def get_workers_by_mall_id(mall_id):
     
 @app.route('/all_mall_workers', methods=['GET'])
 def get_all_mall_workers():
-    all_workers = mall.workers
-    return jsonify([worker.as_dict() for worker in all_workers])
+	mall.update_workers_set()
+	all_workers = mall.workers
+	return jsonify([worker.as_dict() for worker in all_workers])
     
 @app.route('/get_shop_goods_by_id/<int:shop_id>', methods=['GET'])
 def get_shop_goods(shop_id):
@@ -127,5 +128,9 @@ def delete_good(shop_id, good_name):
 	shop_to_update.goods.remove(good_to_delete)
 	return jsonify({'message': 'Good deleted successfully'}), 200
 
+@app.route('/')
+def index():
+	return 'Move to /shops/1'
+
 if __name__ == '__main__':
-    app.run(debug=True)
+	app.run(host='0.0.0.0', port=5000, debug = True)
