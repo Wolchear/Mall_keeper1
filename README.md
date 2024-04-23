@@ -1,4 +1,4 @@
-# Mall keeper
+﻿# Mall keeper
 
 ## How to launch
 ``` git clone ```
@@ -37,30 +37,30 @@
 
 ## Get
 All shops on 1st floor
-``` curl http://127.0.0.1:5000/shops/1 ```
+``` curl http://127.0.0.1:5000/shops_by_floor/1 ```
 Worker by Mall id
-``` curl http://127.0.0.1:5000/workers_mall_id/2 ```
+``` curl http://127.0.0.1:5000/workers_by_mall_id/2 ```
 All mall workers
 ``` curl http://127.0.0.1:5000/all_mall_workers ```
 All goods in shop by shop id 
-``` curl http://127.0.0.1:5000/get_shop_goods_by_id ```
+``` curl http://127.0.0.1:5000/goods_by_shop_id ```
 
 ## Post
 Add New shop
-``` curl -X POST -H "Content-Type: application/json" -d '{"name": "new_shop", "floor": 1}' http://127.0.0.1:5000/add_shop ```
+``` curl -X POST -H "Content-Type: application/json" -d '{"name": "new_shop", "floor": 1}' http://127.0.0.1:5000/new_shop ```
 Add new good
-``` curl -X POST -H "Content-Type: application/json" -d '{"good_name": "New_good", "good_type": "new_good_type", "shop_id": 1}' http://127.0.0.1:5000/add_good ```
+``` curl -X POST -H "Content-Type: application/json" -d '{"good_name": "New_good", "good_type": "new_good_type", "shop_id": 1}' http://127.0.0.1:5000/new_good_in_shop ```
 Add new worker to the shop
-``` curl -X POST -H "Content-Type: application/json" -d '{"worker_name": "Name", "worker_surname": "Surname", "shop_id": 1}' http://127.0.0.1:5000/add_worker ```
+``` curl -X POST -H "Content-Type: application/json" -d '{"worker_name": "Name", "worker_surname": "Surname", "shop_id": 1}' http://127.0.0.1:5000/new_worker ```
 
 ## Put
 Update shop name and\or floor
-``` curl -X PUT -H "Content-Type: application/json" -d '{"name": "New shop name", "floor": 2}' http://127.0.0.1:5000/update_shop/1 ```
+``` curl -X PUT -H "Content-Type: application/json" -d '{"name": "New shop name", "floor": 2}' http://127.0.0.1:5000/new_shop_name_or_floor/1 ```
 
 ## Delete
 Delete shop by id
 ``` curl -X DELETE http://127.0.0.1:5000/delete_shop/1 ```
 Delete good by name in shop
-``` curl -X DELETE http://127.0.0.1:5000/delete_good/1/goo_name ```
+``` curl -X DELETE http://127.0.0.1:5000/delete_good/1/good_name ```
 
 
