@@ -65,15 +65,15 @@ def add_good():
 	good_type = new_good.get('good_type')
 	shop_id = new_good.get('shop_id')
 	
-	if good_name is None or good_name is "":
+	if good_name is None or good_name == "":
 		return jsonify({'error':'good_name is Null',
 				"http_status": 400}), 400
 		
-	if good_type is None or good_type is "":
+	if good_type is None or good_type == "":
 		return jsonify({'error':'good_type is Null',
 				"http_status": 400}), 400
 	
-	if shop_id is None or shop_id is "":
+	if shop_id is None or shop_id == "":
 		return jsonify({'error':'shop_id is Null',
 				"http_status": 400}), 400
 	
@@ -104,7 +104,7 @@ def add_worker():
 		return jsonify({'error':'worker_name is Null',
 				"http_status": 400}), 400
 	
-	if worker_surname is None or worker_surname is '':
+	if worker_surname is None or worker_surname == '':
 		return jsonify({'error':'worker_surname is Null',
 				"http_status": 400}), 400
 		
@@ -117,23 +117,17 @@ def add_worker():
 			'worker_surname': worker_surname}), 201
 
 @app.route('/shops', methods=['PUT'])
-def update_shop(shop_id):
+def update_shop():
 	updated_data = request.json
 	shop_id = updated_data.get('shop_id')
-	shop_to_update = None
-	for shop in mall.shops:
-		if shop.shop_id == shop_id:
-			shop_to_update = shop
-			break
-	
-	new_name = updated_data['name']
-	new_floor = updated_data['floor']
+	new_name = updated_data.get('new_name')
+	new_floor = updated_data.get('new_floor')
 	
 	if(mall.if_shop_exists(new_name, new_floor)):
 		return jsonify({'error': 'Shop not found',
-		"http_status": 404,
-		'shop_name': new_name,
-		'shop_floor': new_floor}), 404
+				"http_status": 404,
+				'shop_name': new_name,
+				'shop_floor': new_floor}), 404
 	
 	if(mall.if_wrong_shop_update(new_name, new_floor)):
 		return jsonify({'error': 'Shop on this floor already exists',
@@ -141,15 +135,16 @@ def update_shop(shop_id):
 				'shop_name': new_name,
 				'shop_floor': new_floor}), 400
 	
-	old_name = shop_to_update.name
-	old_floor = shop_to_update.floor
-	if 'name' in updated_data:
-		shop_to_update.name = new_name
-	if 'floor' in updated_data:
-		shop_to_update.floor = new_floor
-		
+	for shop in mall.shops:
+		if shop.shop_id == shop_id:
+			old_name = shop.name
+			old_floor = shop.floor
+			shop.name = new_name
+			shop.floor = new_floor
+			break
 	
-
+	
+	
 	return jsonify({'message': 'Shop updated successfully',
 			"http_status": 200,
 			'old_name':old_name,
