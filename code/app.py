@@ -9,15 +9,14 @@ def get_shops():
 	shops = mall.getShopListByFloor()
 	return jsonify(shops)
 
-@app.route('/workers', methods=['GET'])
-def get_workers_by_mall_id():
-	mall_id = request.args.get('mall_id')
-	workers = mall.get_workers_by_mall_id(int(mall_id))
+@app.route('/workers/<int:mall_id>', methods=['GET'])
+def get_workers_by_mall_id(mall_id):
+	workers = mall.get_workers_by_mall_id(mall_id)
 	if workers is None:
 		return jsonify({'error': 'Woker not found',
 				"http_status": 404,
-				'worker_id': int(mall_id)}), 404
-	return jsonify(workers)
+				'worker_id': mall_id}), 404
+	return jsonify(workers.as_dict())
     
 @app.route('/workers', methods=['GET'])
 def get_all_mall_workers():
@@ -25,21 +24,20 @@ def get_all_mall_workers():
 	all_workers = mall.workers
 	return jsonify([worker.as_dict() for worker in all_workers])
     
-@app.route('/shops/goods', methods=['GET'])
-def get_shop_goods():
-	shop_id = request.args.get('shop_id')
-	goods = mall.get_shop_goods(int(shop_id))
+@app.route('/shops/<int:shop_id>/goods', methods=['GET'])
+def get_shop_goods(shop_id):
+	goods = mall.get_shop_goods(shop_id)
 	
-	if not mall.if_shop_exists_by_id(int(shop_id)):
+	if not mall.if_shop_exists_by_id(shop_id):
 		return jsonify({'error': 'Shop not found',
 				"http_status": 404,
-				'shop_id': int(shop_id)}), 404
+				'shop_id': shop_id}), 404
 	if not goods:
 		return jsonify({'error': 'Where is no goods in shop',
 				"http_status": 404,
-				'shop_id': int(shop_id)}), 404
+				'shop_id': shop_id}), 404
 	return jsonify([good.as_dict() for good in goods])
-
+	
 @app.route('/shops', methods=['POST'])
 def add_shop():
 	new_shop = request.json
@@ -58,12 +56,12 @@ def add_shop():
 			'shop_floor':shop_floor,
 			"http_status": 201 }), 201
 
-@app.route('/shops/goods', methods=['POST'])
-def add_good():
+
+@app.route('/shops/<int:shop_id>/goods', methods=['POST'])
+def add_good(shop_id):
 	new_good = request.json
 	good_name = new_good.get('good_name')
 	good_type = new_good.get('good_type')
-	shop_id = new_good.get('shop_id')
 	
 	if good_name is None or good_name == "":
 		return jsonify({'error':'good_name is Null',
@@ -88,19 +86,21 @@ def add_good():
 			'good_name':good_name,
 			'good_type':good_type}), 201
 
-@app.route('/workers', methods=['POST'])
-def add_worker():
+@app.route('/shops/<int:shop_id>/workers', methods=['POST'])
+def add_worker(shop_id):
 	new_worker = request.json
 	worker_name = new_worker.get('worker_name')
 	worker_surname = new_worker.get('worker_surname')
-	shop_id = new_worker.get('shop_id')
+	worker_sex = new_worker.get('sex')
+	worker_position = new_worker.get('position')
+	worker_salary = new_worker.get('salary')
 	
 	if not mall.if_shop_exists_by_id(shop_id):
 		return jsonify({'error': 'Shop not found',
 				"http_status": 404,
 				'shop_id': shop_id}), 404
 	
-	if worker_name is None or worker_name is '':
+	if worker_name is None or worker_name == '':
 		return jsonify({'error':'worker_name is Null',
 				"http_status": 400}), 400
 	
@@ -108,26 +108,27 @@ def add_worker():
 		return jsonify({'error':'worker_surname is Null',
 				"http_status": 400}), 400
 		
-	mall.add_worker(shop_id, worker_name, worker_surname)
+	mall.add_worker(shop_id, worker_name, worker_surname, worker_sex, worker_salary, worker_position)
 	
 	return jsonify({'message':'New worker sucesffuly added',
 			"http_status": 201,
 			'shop_id': shop_id,
 			'worker_name': worker_name,
-			'worker_surname': worker_surname}), 201
+			'worker_surname': worker_surname,
+			'worker_sex': worker_sex,
+			'worker_salary': worker_salary,
+			'worker_position': worker_position}), 201
 
-@app.route('/shops', methods=['PUT'])
-def update_shop():
+@app.route('/shops/<int:shop_id>', methods=['PUT'])
+def update_shop(shop_id):
 	updated_data = request.json
-	shop_id = updated_data.get('shop_id')
 	new_name = updated_data.get('new_name')
 	new_floor = updated_data.get('new_floor')
 	
-	if(mall.if_shop_exists(new_name, new_floor)):
+	if not mall.if_shop_exists_by_id(shop_id):
 		return jsonify({'error': 'Shop not found',
 				"http_status": 404,
-				'shop_name': new_name,
-				'shop_floor': new_floor}), 404
+				'shop_id': shop_id}), 404
 	
 	if(mall.if_wrong_shop_update(new_name, new_floor)):
 		return jsonify({'error': 'Shop on this floor already exists',
@@ -143,8 +144,6 @@ def update_shop():
 			shop.floor = new_floor
 			break
 	
-	
-	
 	return jsonify({'message': 'Shop updated successfully',
 			"http_status": 200,
 			'old_name':old_name,
@@ -152,12 +151,9 @@ def update_shop():
 			'new_name': new_name,
 			'new_floor': new_floor}), 200
 
-@app.route('/shops', methods=['DELETE'])
-def delete_shop():
+@app.route('/shops/<int:shop_id>', methods=['DELETE'])
+def delete_shop(shop_id):
 	shop_to_delete = None
-	delete_data = request.json
-	shop_id = delete_data.get('shop_id')
-	
 	if not mall.if_shop_exists_by_id(shop_id):
 		return jsonify({'error': 'Shop not found',
 				"http_status": 404,
@@ -176,12 +172,9 @@ def delete_shop():
 			"shop_id": shop_id,
 			"shop_floor": shop_to_delete.floor}), 200
 
-@app.route('/shops/goods', methods=['DELETE'])
-def delete_good():
+@app.route('/shops/<int:shop_id>/goods/<int:good_id>', methods=['DELETE'])
+def delete_good(shop_id, good_id):
 	shop_to_update = None
-	delete_data = request.json
-	shop_id = delete_data.get('shop_id')
-	good_name = delete_data.get('good_name')
 	for shop in mall.shops:
 		if shop.shop_id == shop_id:
 			shop_to_update = shop
@@ -194,20 +187,24 @@ def delete_good():
 		
 	good_to_delete = None
 	for good in shop_to_update.goods:
-		if good.name == good_name:
+		if good.good_id == good_id:
 			good_to_delete = good
+			good_name = good.name
+			good_type = good.good_type
 			break
 	
 	if good_to_delete is None:
 		return jsonify({'error': 'Could not find good in shop',
 				"http_status": 404,
 				'shop_id': shop_id,
-				'good_name': good_name}), 404
+				'good_id': good_id}), 404
 
 	shop_to_update.goods.remove(good_to_delete)
 	return jsonify({'message': 'Good deleted successfully',
 			"http_status": 200,
 			'shop_id': shop_id,
+			'good_id': good_id,
+			'good_type': good_type,
 			'good_name': good_name}), 200
 
 @app.route('/')
