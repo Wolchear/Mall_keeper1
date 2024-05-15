@@ -1,7 +1,7 @@
 ﻿# Mall keeper
 
 ## How to launch
-```git clone https://github.com/Wolchear/Shop_keeper1.git```
+```git clone https://github.com/Wolchear/Mall_keeper1.git```
 
 ```docker-compose up```
 
