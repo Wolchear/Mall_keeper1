@@ -19,7 +19,19 @@ class Shop:
 	def addWorker(self, name, surname, sex, position, salary):
 		self.workers.append(worker.Worker(name, surname, self.name, self.worker_id, sex, position, salary))
 		self.worker_id += 1
-		
+	
+	def getGood(self, good_name):
+		for good in self.goods:
+			if good.name == good_name:
+				return good
+		return None
+	
+	def getWorker(self, name, surname):
+		for worker in self.workers:
+			if worker.name == name and worker.surname == surname:
+				return worker
+		return None
+	
 	def as_dict(self):
 		return {
 			'shop_id': self.shop_id,
