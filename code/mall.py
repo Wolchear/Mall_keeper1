@@ -47,29 +47,31 @@ class Mall:
 		new_shop = shop.Shop(name, floor)
 		self.shops.append(new_shop)
 	
-	def add_good(self, shop_id, good, good_type):
+	def getShopByName(self, name, floor):
 		for shop in self.shops:
-			if shop.shop_id == shop_id:
-				shop.addGood(good, good_type)
+			if shop.name == name and shop.floor == floor:
+				return shop
+		return None
 	
-	def if_good_exists(self, shop_id, good_name):
+	def getShopById(self, shop_id):
 		for shop in self.shops:
 			if shop.shop_id == shop_id:
-				for good in shop.goods:
-					if(good_name == good.name):
-						return True
-		return False
-			
+				return shop
+		return None	
+	
+	
+	def getShopWorker(self,shop_id, worker_name, worker_surname):
+		for shop in self.shops:
+			if shop.shop_id == shop_id:
+				for worker in shop.workers:
+					if worker.name == worker_name and worker.surname == worker_surname:
+						return worker
+		return None
+		
 	def add_worker(self, shop_id, name, surname, sex,salary, position):
 		for shop in self.shops:
 			if shop.shop_id == shop_id:
 				shop.addWorker(name, surname, sex,salary, position)
-	
-	def get_shop_goods(self, shop_id):
-		for shop in self.shops:
-			if shop.shop_id == shop_id:
-				return shop.goods
-		return None
 	
 	def update_workers_set(self):
 		self.workers=[]
@@ -88,11 +90,13 @@ class Mall:
 			if shop.shop_id == shop_id:
 				return True
 		return False
-	
-	def update_ids_after_shop_delete(self, shop_id):
+		
+		
+	def if_shop_exists_by_name_floor(self, name, floor):
 		for shop in self.shops:
-			if shop.shop_id > shop_id:
-				shop.shop_id -=1
+			if shop.name == name and shop.floor == floor:
+				return True
+		return False
 	
 	def getShopListByFloor(self,):
 		return [shop.as_dict() for shop in self.shops]
